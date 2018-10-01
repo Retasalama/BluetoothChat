@@ -2,4 +2,6 @@
     <string name="app_name">Bluetooth Chat App</string>
     <string name="none_paired">No devices have been paired</string>
     <string name="none_found">No devices found</string>
+    <string name="welcome">Welcome to Bluetooth Chat. Choose your alias:</string>
+    <string name="startChat">Start chat</string>
 </resources>

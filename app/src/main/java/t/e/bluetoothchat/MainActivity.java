@@ -35,6 +35,10 @@ public class MainActivity extends AppCompatActivity {
     private ArrayAdapter<String> chatAdapter;
     private ArrayList<String> chatMessages;
     private BluetoothAdapter bluetoothAdapter;
+    private String chatterName;                                                                     ///NAMA!!!!
+    private String myName;                                                                          //NAMA!!!
+    private boolean readFlag;
+    private boolean writeFlag;                                                                      //NAMA!!
 
     public static final int MESSAGE_STATE_CHANGE = 1;
     public static final int MESSAGE_READ = 2;
@@ -54,6 +58,7 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         findViewsByIds();
+        myName = getIntent().getStringExtra("alias");
 
         //check device support bluetooth or not
         bluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
@@ -74,6 +79,8 @@ public class MainActivity extends AppCompatActivity {
         chatMessages = new ArrayList<>();
         chatAdapter = new ArrayAdapter<>(this, android.R.layout.simple_list_item_1, chatMessages);
         listView.setAdapter(chatAdapter);
+        readFlag = false;
+        readFlag = false;
     }
 
     private Handler handler = new Handler(new Handler.Callback() {
@@ -86,6 +93,7 @@ public class MainActivity extends AppCompatActivity {
                         case ChatController.STATE_CONNECTED:
                             setStatus("Connected to: " + connectingDevice.getName());
                             btnConnect.setEnabled(false);
+                            sendMessage(myName);                                                    ////NAMA!!!!
                             break;
                         case ChatController.STATE_CONNECTING:
                             setStatus("Connecting...");
@@ -99,18 +107,29 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 case MESSAGE_WRITE:
                     byte[] writeBuf = (byte[]) msg.obj;
-
                     String writeMessage = new String(writeBuf);
-                    chatMessages.add("Me: " + writeMessage);
-                    chatAdapter.notifyDataSetChanged();
-                    break;
+                    if(!writeFlag) {
+                        writeFlag = true;
+                        break;
+                    } else {
+                        chatMessages.add(myName + ": " + writeMessage);
+                        chatAdapter.notifyDataSetChanged();
+                        break;
+                    }
+                                                                                                    //tanne bielä flagi ettei kirjoita nimea!!
                 case MESSAGE_READ:
                     byte[] readBuf = (byte[]) msg.obj;
 
                     String readMessage = new String(readBuf, 0, msg.arg1);
-                    chatMessages.add(connectingDevice.getName() + ":  " + readMessage);
-                    chatAdapter.notifyDataSetChanged();
-                    break;
+                    if(!readFlag) {
+                        chatterName = readMessage;
+                        readFlag = true;
+                        break;
+                    } else {
+                        chatMessages.add(/*connectingDevice.getName()*/chatterName + ":  " + readMessage);
+                        chatAdapter.notifyDataSetChanged();
+                        break;
+                    }
                 case MESSAGE_DEVICE_OBJECT:
                     connectingDevice = msg.getData().getParcelable(DEVICE_OBJECT);
                     Toast.makeText(getApplicationContext(), "Connected to " + connectingDevice.getName(),
